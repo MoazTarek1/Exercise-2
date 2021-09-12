@@ -14,14 +14,15 @@ namespace PIZZAAPI
     }
     public class PizzaConfig
     {
-        const string _menu = "Menu.json";
-        const string _toppings = "Toppings.json";
+        const string _menu = "Models/Menu.json";
+        const string _toppings = "Models/Toppings.json";
 
-        public List<Pizza> GetMenu()
+        public async Task<List<Pizza>> GetMenu()
         {
             try
             { 
-                List<Pizza> menu = JsonSerializer.Deserialize<List<Pizza>>(File.ReadAllText(_menu));
+                var menuJson = await File.ReadAllTextAsync(_menu);
+                List<Pizza> menu = JsonSerializer.Deserialize<List<Pizza>>(menuJson);
                 return menu;
             }
             catch
@@ -43,7 +44,7 @@ namespace PIZZAAPI
             return menu;
         }
 
-        public void SaveOrder(Order order)
+        public async Task SaveOrder(Order order)
         {
             string jsonData = JsonSerializer.Serialize(order, new JsonSerializerOptions { WriteIndented = true });
             if (!Directory.Exists("Orders"))
@@ -52,19 +53,20 @@ namespace PIZZAAPI
             }
             if(File.Exists($"Orders/{order.CustomerName}.json"))
             {
-                File.WriteAllText($"Orders/{order.CustomerName}1.json", jsonData);
+                await File.WriteAllTextAsync($"Orders/{order.CustomerName}1.json", jsonData);
             }
             else
             {
-                File.WriteAllText($"Orders/{order.CustomerName}.json", jsonData);
+                await File.WriteAllTextAsync($"Orders/{order.CustomerName}.json", jsonData);
             }
         }
 
-        public List<Topping> GetToppings()
+        public async Task<List<Topping>> GetToppings()
         {
             try
             { 
-                List<Topping> toppings = JsonSerializer.Deserialize<List<Topping>>(File.ReadAllText(_toppings));
+                var toppingsJson = await File.ReadAllTextAsync(_toppings);
+                List<Topping> toppings = JsonSerializer.Deserialize<List<Topping>>(toppingsJson);
                 return toppings;
             }
             catch

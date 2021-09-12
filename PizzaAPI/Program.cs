@@ -11,12 +11,16 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/", () => "Hello World!");
 
-app.MapGet("/menu", () => {
-    return config.GetMenu();
+app.MapGet("/menu", async () => {
+    return await config.GetMenu();
 });
 
-app.MapGet("/toppings", () => {
-    return config.GetToppings();
+app.MapGet("/toppings", async () => {
+    return await config.GetToppings();
+});
+
+app.MapPost("/order", async (Order order) => {
+    await config.SaveOrder(order);
 });
 
 app.Run();
