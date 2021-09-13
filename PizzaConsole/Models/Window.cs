@@ -3,11 +3,48 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.IO;
 using Spectre.Console;
+using System.Net.Http;
+using System.Net.Http.Json;
 
 namespace OrderPizza
 {
     public class Window
     {
+        private readonly HttpClient _httpClient;
+
+        public Window(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
+        public async Task RunConsole() 
+        {
+            var userSelection = DrawMainMenu();
+            
+            while (userSelection != "Exit")
+            {
+                List<Pizza> pizzas = new(); 
+                (int numberOfPizza, string customerName) = DrawTakingOrder();
+                for (int i = 0; i < numberOfPizza; i++)
+                {
+                    var orderType = DrawCustomOrMenu();
+                    if (orderType == "Pizza from menu")
+                    {
+                        var menu = await _httpClient.GetFromJsonAsync<List<Pizza>>("http://localhost:5000/menu");
+                        pizzas.Add(DrawMenuPizzaSelect(menu));
+                    }
+                    else if (orderType == "Custom made pizza")
+                    {
+                        var toppings = await _httpClient.GetFromJsonAsync<List<Topping>>("http://localhost:5000/toppings");
+                        pizzas.Add(DrawCustomPizzaSelect(toppings));
+                    }                    
+                }
+                Order order = new(customerName, pizzas);
+                await _httpClient.PostAsJsonAsync<Order>("http://localhost:5000/order", order);
+                userSelection = DrawMainMenu();
+            }   
+        }
+
         public string DrawMainMenu()
         {
             AnsiConsole.Clear();

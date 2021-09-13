@@ -4,6 +4,13 @@ using System.Linq;
 
 namespace OrderPizza
 {
+    public enum Size 
+    {
+            Small = 120,
+            Medium = 150,
+            Large = 175
+    }
+
     public class Pizza
     {
         public string Name { get; set; }

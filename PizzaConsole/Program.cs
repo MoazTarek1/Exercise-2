@@ -1,39 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.Json;
-using System.IO;
-using Spectre.Console;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
 
 namespace OrderPizza
 {
-    class Program
+    public class Startup
     {
-        static void Main(string[] args)
+        public class Program
         {
-            PizzaConfig pizzaConfig = new();
-            Window window = new();
-            var userSelection = window.DrawMainMenu();
-            
-            while (userSelection != "Exit")
+            public static void Main(string[] args)
             {
-                List<Pizza> pizzas = new(); 
-                (int numberOfPizza, string customerName) = window.DrawTakingOrder();
-                for (int i = 0; i < numberOfPizza; i++)
-                {
-                    var orderType = window.DrawCustomOrMenu();
-                    if (orderType == "Pizza from menu")
-                    {
-                        pizzas.Add(window.DrawMenuPizzaSelect(pizzaConfig.GetMenu()));
-                    }
-                    else if (orderType == "Custom made pizza")
-                    {
-                        pizzas.Add(window.DrawCustomPizzaSelect(pizzaConfig.GetToppings()));
-                    }                    
-                }
-                Order order = new(customerName, pizzas);
-                pizzaConfig.SaveOrder(order);
-                userSelection = window.DrawMainMenu();
-            }    
+                ServiceCollection services = new();
+                services.AddHttpClient();
+                ServiceProvider service = services.BuildServiceProvider();
+                Window window = new(service.GetService<HttpClient>());
+                Task.WaitAll(window.RunConsole());
+            }
         }
     }
 }
